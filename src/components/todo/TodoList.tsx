@@ -1,5 +1,6 @@
 import { AxiosError } from "axios";
 import { FormEvent, useCallback, useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import { axiosTodo } from "../../api/axios";
 import { TODO_URL } from "../../data/url";
 import Modal from "../../Modal";
@@ -7,37 +8,8 @@ import { Todo } from "./TodoMain";
 
 const ToDoList = () => {
   const [todos, setTodos] = useState<Todo[]>();
-  const [title, setTitle] = useState("");
-  const [content, setContent] = useState("");
   const [todoDetail, setTodoDetail] = useState<Todo>();
-
-  const changeTitle = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    setTitle(e.target.value);
-  }, []);
-  const changeContent = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-    setContent(e.target.value);
-  }, []);
-
-  const onSubmit = async (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    try {
-      const res = await axiosTodo.post(TODO_URL, {
-        title,
-        content,
-      });
-      if (res.status === 200) {
-        setTitle("");
-        setContent("");
-        getTodos();
-      }
-    } catch (err) {
-      if (err instanceof AxiosError) {
-        console.log(err);
-      } else {
-        console.log(err);
-      }
-    }
-  };
+  const [type, setType] = useState("");
 
   const getTodos = async () => {
     try {
@@ -71,10 +43,9 @@ const ToDoList = () => {
   }, []);
   const [modalOpen, setModalOpen] = useState(false);
 
-  const openModal = (prop: Todo) => {
-    setTodoDetail((prev) => {
-      return (prev = prop);
-    });
+  const openModal = (type: string, prop?: Todo) => {
+    setType(type);
+    setTodoDetail(prop);
     setModalOpen(true);
   };
   const closeModal = () => {
@@ -82,43 +53,53 @@ const ToDoList = () => {
   };
   return (
     <section className="text-gray-600 body-font overflow-hidden">
-      <form onSubmit={onSubmit}>
-        <input onChange={changeTitle} name="title" value={title} placeholder="제목" />
-        <input
-          onChange={changeContent}
-          name="content"
-          value={content}
-          placeholder="할 일을 입력하세요"
-        />
-        <button type="submit">등록</button>
-      </form>
+      <button
+        className="shadow bg-teal-400 hover:bg-teal-600 focus:shadow-outline focus:outline-none text-white font-bold py-2 px-4 rounded"
+        type="submit"
+        onClick={() => {
+          openModal("create");
+        }}
+      >
+        추가
+      </button>
       <div className="container px-5 py-24 mx-auto">
-        <div className="-my-8 divide-y-2 divide-gray-100">
+        <div className="-my-8 justify-center divide-y-2 divide-gray-100">
           {todos !== undefined ? (
             todos.map((todo) => (
-              <div key={todo.id} className="py-8 flex flex-wrap md:flex-nowrap justify-center">
-                <div className=" w-2/12 md:mb-0 mb-6 flex-shrink-0 flex flex-col self-center">
-                  <span className="font-semibold title-font text-gray-700">{todo.title}</span>
-                  <span className="mt-1 text-gray-500 text-sm">{todo.updatedAt}</span>
-                </div>
-                <div className="flex">
-                  <h2
-                    style={{ width: "600px" }}
-                    className="text-2xl font-medium text-gray-900 title-font mb-2 self-center"
-                  >
-                    {todo.content}
-                  </h2>
+              <div key={todo.id} className="justify-center flex">
+                <div
+                  style={{ width: "500px" }}
+                  className="max-w-md py-4 px-8 bg-white shadow-lg  rounded-lg my-20"
+                >
+                  <div className="flex justify-center md:justify-end -mt-16"></div>
                   <div>
-                    <button
-                      onClick={() => deleteTodo(todo.id)}
-                      className="text-indigo-500 block mt-4"
-                    >
-                      삭제
-                    </button>
-                    <button onClick={() => openModal(todo)} className="text-indigo-500 block mt-4">
-                      수정
-                    </button>
+                    <h2 className="text-gray-800 text-2xl font-semibold">{todo.title}</h2>
+                    <p className="mt-2 text-xl text-gray-600">{todo.content}</p>
                   </div>
+                  <div className="flex justify-end mt-4">
+                    <p className="text-l font-medium text-gray-500">{todo.updatedAt}</p>
+                  </div>
+                </div>
+                <div className="w-10">
+                  <button
+                    onClick={() => deleteTodo(todo.id)}
+                    className="shadow bg-red-400 hover:bg-red-600 focus:shadow-outline focus:outline-none text-white font-bold py-2 px-4 w-16 rounded"
+                  >
+                    삭제
+                  </button>
+                  <button
+                    onClick={() => {
+                      openModal("update", todo);
+                    }}
+                    className="shadow bg-blue-400 hover:bg-blue-600 focus:shadow-outline focus:outline-none text-white font-bold py-2 px-4 w-16 rounded"
+                  >
+                    수정
+                  </button>
+                  <Link to={`/todos/${todo.id}`}>
+                    <button className="shadow bg-green-400 hover:bg-green-600 focus:shadow-outline focus:outline-none text-white font-bold py-2 px-4 w-16 rounded">
+                      상세
+                    </button>
+                  </Link>
                 </div>
               </div>
             ))
@@ -131,7 +112,7 @@ const ToDoList = () => {
           close={closeModal}
           fn={getTodos}
           main={todoDetail}
-          header="Todo 수정"
+          type={type}
         ></Modal>
       </div>
     </section>

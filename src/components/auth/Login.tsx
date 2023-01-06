@@ -7,7 +7,7 @@ import { EMAIL_REGEXR } from "../../data/regex";
 import { LOGIN_URL } from "../../data/url";
 
 const Login = () => {
-  const { auth, setAuth } = useContext(AuthContext);
+  const { setAuth } = useContext(AuthContext);
   const [email, setEmail] = useState("");
   const [validEmail, setValidEmail] = useState(false);
   const [emailFocus, setEmailFocus] = useState(false);
@@ -44,14 +44,15 @@ const Login = () => {
       if (res.status === 200) {
         const accessToken = res?.data?.token;
         localStorage.setItem("accessToken", accessToken);
+        alert(res?.data?.message);
         setEmail("");
         setAuth((prev) => (prev.accessToken = accessToken));
-        console.log(auth.accessToken);
         setPassword("");
         navigate("/");
       }
     } catch (err) {
       if (err instanceof AxiosError) {
+        setErrMsg(err.response?.data.details);
         alert(err.response?.data.details + ". \n아이디와 비밀번호를 확인해주세요");
       } else {
         console.log(err);

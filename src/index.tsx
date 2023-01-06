@@ -4,10 +4,8 @@ import "./index.css";
 import App from "./App";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { AuthProvider } from "./context/AuthProvider";
-import Modal from "react-modal";
 
 const root = ReactDOM.createRoot(document.getElementById("root") as HTMLElement);
-Modal.setAppElement("#root");
 root.render(
   <React.StrictMode>
     <BrowserRouter>

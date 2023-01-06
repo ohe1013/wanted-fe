@@ -45,6 +45,7 @@ const Regsiter = () => {
       });
       const accessToken = res?.data?.token;
       localStorage.setItem("accessToken", accessToken);
+      alert(res?.data?.message);
       setEmail("");
       setPassword("");
       setMatchPassword("");
