@@ -1,5 +1,4 @@
-import { AxiosError } from "axios";
-import { FormEvent, useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { axiosTodo } from "../../api/axios";
 import { TODO_URL } from "../../data/url";
@@ -8,8 +7,9 @@ import { Todo } from "./TodoMain";
 
 const ToDoList = () => {
   const [todos, setTodos] = useState<Todo[]>();
-  const [todoDetail, setTodoDetail] = useState<Todo>();
+  const [todoModal, setTodoModal] = useState<Todo>();
   const [type, setType] = useState("");
+  const [todoDetail, setTodoDetail] = useState<Todo>();
 
   const getTodos = async () => {
     try {
@@ -45,8 +45,18 @@ const ToDoList = () => {
 
   const openModal = (type: string, prop?: Todo) => {
     setType(type);
-    setTodoDetail(prop);
+    setTodoModal(prop);
     setModalOpen(true);
+  };
+
+  const openDetail = async (id: string) => {
+    try {
+      const res = await axiosTodo.get(TODO_URL + `/${id}`);
+      if (res.status === 200) {
+        const todo = res.data.data;
+        setTodoDetail(todo);
+      }
+    } catch (error) {}
   };
   const closeModal = () => {
     setModalOpen(false);
@@ -60,7 +70,7 @@ const ToDoList = () => {
           openModal("create");
         }}
       >
-        추가
+        TODO 추가
       </button>
       <div className="container px-5 py-24 mx-auto">
         <div className="-my-8 justify-center divide-y-2 divide-gray-100">
@@ -95,11 +105,12 @@ const ToDoList = () => {
                   >
                     수정
                   </button>
-                  <Link to={`/todos/${todo.id}`}>
-                    <button className="shadow bg-green-400 hover:bg-green-600 focus:shadow-outline focus:outline-none text-white font-bold py-2 px-4 w-16 rounded">
-                      상세
-                    </button>
-                  </Link>
+                  <button
+                    onClick={() => openDetail}
+                    className="shadow bg-green-400 hover:bg-green-600 focus:shadow-outline focus:outline-none text-white font-bold py-2 px-4 w-16 rounded"
+                  >
+                    상세
+                  </button>
                 </div>
               </div>
             ))
@@ -111,7 +122,7 @@ const ToDoList = () => {
           open={modalOpen}
           close={closeModal}
           fn={getTodos}
-          main={todoDetail}
+          main={todoModal}
           type={type}
         ></Modal>
       </div>
