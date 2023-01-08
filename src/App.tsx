@@ -5,7 +5,6 @@ import Login from "./components/auth/Login";
 import Register from "./components/auth/Register";
 import RequireAuth, { NotRequireAuth } from "./components/auth/RequiredAuth";
 import TodoMain from "./components/todo/TodoMain";
-import TodoDetail from "./components/todo/TodoDetail";
 
 function App() {
   return (
@@ -17,7 +16,7 @@ function App() {
         </Route>
         <Route element={<RequireAuth />}>
           <Route path="todos" element={<TodoMain />} />
-          <Route path="todos/:id" element={<TodoDetail />} />
+          <Route path="todos/:id" element={<TodoMain />} />
         </Route>
       </Route>
       <Route path="*" element={<Layout />} />

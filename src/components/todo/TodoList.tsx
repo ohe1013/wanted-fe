@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { axiosTodo } from "../../api/axios";
 import { TODO_URL } from "../../data/url";
 import Modal from "../../Modal";
+import TodoDetail from "./TodoDetail";
 import { Todo } from "./TodoMain";
 
 const ToDoList = () => {
@@ -10,6 +11,8 @@ const ToDoList = () => {
   const [todoModal, setTodoModal] = useState<Todo>();
   const [type, setType] = useState("");
   const [todoDetail, setTodoDetail] = useState<Todo>();
+  const params = useParams();
+  const navigate = useNavigate();
 
   const getTodos = async () => {
     try {
@@ -25,11 +28,14 @@ const ToDoList = () => {
           };
         });
         setTodos(todoList);
+        getTodoById();
       }
     } catch (error) {}
   };
 
   const deleteTodo = async (id: string) => {
+    if (!window.confirm("삭제하시겠습니까?")) return false;
+
     try {
       const res = await axiosTodo.delete(TODO_URL + `/${id}`);
       if (res.status === 200) {
@@ -37,10 +43,28 @@ const ToDoList = () => {
       }
     } catch (error) {}
   };
+  const getTodoById = async () => {
+    if (params.id === undefined) {
+      setTodoDetail({ title: "", content: "", id: "", createdAt: "", updatedAt: "", isEdit: false });
+      return false;
+    }
+    try {
+      const res = await axiosTodo.get(TODO_URL + `/${params.id}`);
+      if (res.status === 200) {
+        setTodoDetail(res.data.data);
+      }
+    } catch (error) {
+      setTodoDetail({ title: "", content: "", id: "", createdAt: "", updatedAt: "", isEdit: false });
+    }
+  };
+  useEffect(() => {
+    getTodoById();
+  }, [params]);
 
   useEffect(() => {
     getTodos();
   }, []);
+
   const [modalOpen, setModalOpen] = useState(false);
 
   const openModal = (type: string, prop?: Todo) => {
@@ -49,15 +73,6 @@ const ToDoList = () => {
     setModalOpen(true);
   };
 
-  const openDetail = async (id: string) => {
-    try {
-      const res = await axiosTodo.get(TODO_URL + `/${id}`);
-      if (res.status === 200) {
-        const todo = res.data.data;
-        setTodoDetail(todo);
-      }
-    } catch (error) {}
-  };
   const closeModal = () => {
     setModalOpen(false);
   };
@@ -72,19 +87,16 @@ const ToDoList = () => {
       >
         TODO 추가
       </button>
-      <div className="container px-5 py-24 mx-auto">
+      <div className="container justify-center flex px-5 py-24 mx-auto">
         <div className="-my-8 justify-center divide-y-2 divide-gray-100">
           {todos !== undefined ? (
             todos.map((todo) => (
               <div key={todo.id} className="justify-center flex">
-                <div
-                  style={{ width: "500px" }}
-                  className="max-w-md py-4 px-8 bg-white shadow-lg  rounded-lg my-20"
-                >
+                <div style={{ width: "500px" }} className="max-w-md py-4 px-8 bg-white shadow-lg  rounded-lg my-20">
                   <div className="flex justify-center md:justify-end -mt-16"></div>
                   <div>
                     <h2 className="text-gray-800 text-2xl font-semibold">{todo.title}</h2>
-                    <p className="mt-2 text-xl text-gray-600">{todo.content}</p>
+                    <p className="mt-2 truncate text-xl text-gray-600">{todo.content}</p>
                   </div>
                   <div className="flex justify-end mt-4">
                     <p className="text-l font-medium text-gray-500">{todo.updatedAt}</p>
@@ -106,7 +118,7 @@ const ToDoList = () => {
                     수정
                   </button>
                   <button
-                    onClick={() => openDetail}
+                    onClick={() => navigate(`/todos/${todo.id}`)}
                     className="shadow bg-green-400 hover:bg-green-600 focus:shadow-outline focus:outline-none text-white font-bold py-2 px-4 w-16 rounded"
                   >
                     상세
@@ -115,17 +127,14 @@ const ToDoList = () => {
               </div>
             ))
           ) : (
-            <div></div>
+            <div className="justify-center flex">
+              <div style={{ width: "500px" }} className="max-w-md py-4 px-8 bg-white shadow-lg  rounded-lg my-20"></div>
+            </div>
           )}
         </div>
-        <Modal
-          open={modalOpen}
-          close={closeModal}
-          fn={getTodos}
-          main={todoModal}
-          type={type}
-        ></Modal>
+        <TodoDetail todo={todoDetail} />
       </div>
+      <Modal open={modalOpen} close={closeModal} fn={getTodos} main={todoModal} type={type}></Modal>
     </section>
   );
 };
