@@ -1,6 +1,6 @@
 import "./App.css";
 import { Routes, Route } from "react-router-dom";
-import Layout from "./layout/Layout";
+import Layout from "./components/layout/Layout";
 import Login from "./components/auth/Login";
 import Register from "./components/auth/Register";
 import RequireAuth, { NotRequireAuth } from "./components/auth/RequiredAuth";

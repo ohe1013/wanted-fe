@@ -1,7 +1,7 @@
 import React, { useContext, useState } from "react";
 import classNames from "classnames";
 import { Link } from "react-router-dom";
-import AuthContext from "../context/AuthProvider";
+import AuthContext from "../../context/AuthProvider";
 
 const Navbar = () => {
   const [menuToggle, setMenuToggle] = useState(false);
@@ -23,7 +23,6 @@ const Navbar = () => {
               </Link>
             </div>
           </div>
-
           {auth.accessToken !== "null" ? (
             <button onClick={logout}>로그아웃</button>
           ) : (
