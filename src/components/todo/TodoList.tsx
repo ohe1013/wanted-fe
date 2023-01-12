@@ -3,8 +3,9 @@ import { useNavigate, useParams } from "react-router-dom";
 import { axiosTodo } from "../../api/axios";
 import { TODO_URL } from "../../data/url";
 import Modal from "../../Modal";
+import { Todo } from "../../types/todo";
+import Loading from "../cmm/Loading";
 import TodoDetail from "./TodoDetail";
-import { Todo } from "./TodoMain";
 
 const ToDoList = () => {
   const [todos, setTodos] = useState<Todo[]>();
@@ -12,7 +13,16 @@ const ToDoList = () => {
   const [type, setType] = useState("");
   const [todoDetail, setTodoDetail] = useState<Todo>();
   const params = useParams();
+  const [loading, setLoading] = useState<boolean>(false);
   const navigate = useNavigate();
+  const defaultTodo = {
+    title: "",
+    content: "",
+    id: "",
+    createdAt: "",
+    updatedAt: "",
+    isEdit: false,
+  };
 
   const getTodos = async () => {
     try {
@@ -45,7 +55,7 @@ const ToDoList = () => {
   };
   const getTodoById = async () => {
     if (params.id === undefined) {
-      setTodoDetail({ title: "", content: "", id: "", createdAt: "", updatedAt: "", isEdit: false });
+      setTodoDetail(defaultTodo);
       return false;
     }
     try {
@@ -54,7 +64,7 @@ const ToDoList = () => {
         setTodoDetail(res.data.data);
       }
     } catch (error) {
-      setTodoDetail({ title: "", content: "", id: "", createdAt: "", updatedAt: "", isEdit: false });
+      setTodoDetail(defaultTodo);
     }
   };
   useEffect(() => {
@@ -78,6 +88,7 @@ const ToDoList = () => {
   };
   return (
     <section className="text-gray-600 body-font overflow-hidden">
+      {loading && <Loading type="spin" color="black" message={""} />}
       <button
         className="shadow bg-teal-400 hover:bg-teal-600 focus:shadow-outline focus:outline-none text-white font-bold py-2 px-4 rounded"
         type="submit"
@@ -92,7 +103,10 @@ const ToDoList = () => {
           {todos !== undefined ? (
             todos.map((todo) => (
               <div key={todo.id} className="justify-center flex">
-                <div style={{ width: "500px" }} className="max-w-md py-4 px-8 bg-white shadow-lg  rounded-lg my-20">
+                <div
+                  style={{ width: "500px" }}
+                  className="max-w-md py-4 px-8 bg-white shadow-lg  rounded-lg my-20"
+                >
                   <div className="flex justify-center md:justify-end -mt-16"></div>
                   <div>
                     <h2 className="text-gray-800 text-2xl font-semibold">{todo.title}</h2>
@@ -128,7 +142,10 @@ const ToDoList = () => {
             ))
           ) : (
             <div className="justify-center flex">
-              <div style={{ width: "500px" }} className="max-w-md py-4 px-8 bg-white shadow-lg  rounded-lg my-20"></div>
+              <div
+                style={{ width: "500px" }}
+                className="max-w-md py-4 px-8 bg-white shadow-lg  rounded-lg my-20"
+              ></div>
             </div>
           )}
         </div>
