@@ -1,12 +1,13 @@
-import "./App.css";
 import { Routes, Route } from "react-router-dom";
 import Layout from "./components/layout/Layout";
 import Login from "./components/auth/Login";
 import Register from "./components/auth/Register";
 import RequireAuth, { NotRequireAuth } from "./components/auth/RequiredAuth";
 import TodoMain from "./components/todo/TodoMain";
+import ApiService from "./service/apiService";
 
 function App() {
+  if (localStorage.getItem("accessToken")) ApiService.setHader();
   return (
     <Routes>
       <Route element={<Layout />}>

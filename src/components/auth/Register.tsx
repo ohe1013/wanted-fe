@@ -1,9 +1,9 @@
 import { AxiosError } from "axios";
 import { FormEvent, useRef, useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import axios from "../../api/axios";
 import { EMAIL_REGEXR } from "../../data/regex";
 import { SIGNUP_URL } from "../../data/url";
+import axios from "../../service/config/axios";
 
 const Regsiter = () => {
   const [email, setEmail] = useState("");

@@ -6,3 +6,7 @@ export type Todo = {
     updatedAt: string;
     isEdit: boolean;
   };
+
+  export type TodoServiceParam = {
+    setTodos : React.Dispatch<React.SetStateAction<Todo[] | undefined>>
+  }

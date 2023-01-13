@@ -1,10 +1,10 @@
-import { AxiosError } from "axios";
+import axios, { AxiosError } from "axios";
 import { FormEvent, useRef, useState, useEffect, useContext } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import axios from "../../api/axios";
 import AuthContext from "../../context/AuthProvider";
 import { EMAIL_REGEXR } from "../../data/regex";
 import { LOGIN_URL } from "../../data/url";
+import ApiService from "../../service/apiService";
 
 const Login = () => {
   const { setAuth } = useContext(AuthContext);
@@ -44,10 +44,12 @@ const Login = () => {
       if (res.status === 200) {
         const accessToken = res?.data?.token;
         localStorage.setItem("accessToken", accessToken);
+
         alert(res?.data?.message);
         setEmail("");
         setAuth((prev) => (prev.accessToken = accessToken));
         setPassword("");
+        ApiService.setHader();
         navigate("/");
       }
     } catch (err) {

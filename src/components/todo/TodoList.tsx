@@ -1,9 +1,11 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { axiosTodo } from "../../api/axios";
 import { TODO_URL } from "../../data/url";
 import Modal from "../../Modal";
+import axios from "../../service/config/axios";
+import TodoService from "../../service/todoService";
 import { Todo } from "../../types/todo";
+import { BasicButton } from "../cmm/Button";
 import Loading from "../cmm/Loading";
 import TodoDetail from "./TodoDetail";
 
@@ -24,51 +26,19 @@ const ToDoList = () => {
     isEdit: false,
   };
 
-  const getTodos = async () => {
-    try {
-      const res = await axiosTodo.get(TODO_URL);
-      if (res.status === 200) {
-        const todoList = res.data.data.map((item: any) => {
-          return {
-            title: item.title,
-            content: item.content,
-            id: item.id,
-            createdAt: item.createdAt,
-            updatedAt: item.updatedAt.split("T")[0],
-          };
-        });
-        setTodos(todoList);
-        getTodoById();
-      }
-    } catch (error) {}
-  };
+  const getTodos = () => TodoService.getTodos().then((res) => setTodos(res));
+  const getTodoById = (id: string) =>
+    TodoService.getTodoById(id)
+      .then((res) => setTodoDetail(res))
+      .catch(() => {
+        setTodoDetail(defaultTodo);
+      });
+  const deleteTodo = (id: string) => TodoService.deleteTodo(id).then(() => getTodos);
 
-  const deleteTodo = async (id: string) => {
-    if (!window.confirm("삭제하시겠습니까?")) return false;
-
-    try {
-      const res = await axiosTodo.delete(TODO_URL + `/${id}`);
-      if (res.status === 200) {
-        getTodos();
-      }
-    } catch (error) {}
-  };
-  const getTodoById = async () => {
-    if (params.id === undefined) {
-      setTodoDetail(defaultTodo);
-      return false;
-    }
-    try {
-      const res = await axiosTodo.get(TODO_URL + `/${params.id}`);
-      if (res.status === 200) {
-        setTodoDetail(res.data.data);
-      }
-    } catch (error) {
-      setTodoDetail(defaultTodo);
-    }
-  };
   useEffect(() => {
-    getTodoById();
+    if (params.id) {
+      getTodoById(params.id);
+    }
   }, [params]);
 
   useEffect(() => {
@@ -89,15 +59,7 @@ const ToDoList = () => {
   return (
     <section className="text-gray-600 body-font overflow-hidden">
       {loading && <Loading type="spin" color="black" message={""} />}
-      <button
-        className="shadow bg-teal-400 hover:bg-teal-600 focus:shadow-outline focus:outline-none text-white font-bold py-2 px-4 rounded"
-        type="submit"
-        onClick={() => {
-          openModal("create");
-        }}
-      >
-        TODO 추가
-      </button>
+      <BasicButton type="submit" color={"teal"} msg="추가" />
       <div className="container justify-center flex px-5 py-24 mx-auto">
         <div className="-my-8 justify-center divide-y-2 divide-gray-100">
           {todos !== undefined ? (
@@ -117,26 +79,24 @@ const ToDoList = () => {
                   </div>
                 </div>
                 <div className="w-10">
-                  <button
-                    onClick={() => deleteTodo(todo.id)}
-                    className="shadow bg-red-400 hover:bg-red-600 focus:shadow-outline focus:outline-none text-white font-bold py-2 px-4 w-16 rounded"
-                  >
-                    삭제
-                  </button>
-                  <button
-                    onClick={() => {
-                      openModal("update", todo);
-                    }}
-                    className="shadow bg-blue-400 hover:bg-blue-600 focus:shadow-outline focus:outline-none text-white font-bold py-2 px-4 w-16 rounded"
-                  >
-                    수정
-                  </button>
-                  <button
-                    onClick={() => navigate(`/todos/${todo.id}`)}
-                    className="shadow bg-green-400 hover:bg-green-600 focus:shadow-outline focus:outline-none text-white font-bold py-2 px-4 w-16 rounded"
-                  >
-                    상세
-                  </button>
+                  <BasicButton
+                    type="button"
+                    cb={() => deleteTodo(todo.id)}
+                    color={"red"}
+                    msg="삭제"
+                  />
+                  <BasicButton
+                    type="button"
+                    cb={() => openModal("update", todo)}
+                    color={"blue"}
+                    msg="수정"
+                  />
+                  <BasicButton
+                    type="button"
+                    cb={() => navigate(`/todos/${todo.id}`)}
+                    color={"yellow"}
+                    msg="상세"
+                  />
                 </div>
               </div>
             ))

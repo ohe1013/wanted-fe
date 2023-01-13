@@ -1,9 +1,16 @@
 import { AxiosError } from "axios";
 import React, { FormEvent, useCallback, useEffect, useState } from "react";
-import { axiosTodo } from "./api/axios";
 import { TODO_URL } from "./data/url";
 import "./modal.css";
-const Modal = (props: { children?: any; open?: any; close?: any; main?: any; fn?: any; type?: any }) => {
+import axios from "./service/config/axios";
+const Modal = (props: {
+  children?: any;
+  open?: any;
+  close?: any;
+  main?: any;
+  fn?: any;
+  type?: any;
+}) => {
   // 열기, 닫기, 모달 헤더 텍스트를 부모로부터 받아옴
   const { open, close, main, fn, type } = props;
   const [title, setTitle] = useState("");
@@ -26,11 +33,11 @@ const Modal = (props: { children?: any; open?: any; close?: any; main?: any; fn?
     try {
       const res =
         type !== "create"
-          ? await axiosTodo.put(TODO_URL + `/${props.main.id}`, {
+          ? await axios.put(TODO_URL + `/${props.main.id}`, {
               title,
               content,
             })
-          : await axiosTodo.post(TODO_URL, {
+          : await axios.post(TODO_URL, {
               title,
               content,
             });
@@ -64,7 +71,10 @@ const Modal = (props: { children?: any; open?: any; close?: any; main?: any; fn?
             <form onSubmit={onSubmit} className="w-full max-w-sm">
               <div className="md:flex md:items-center mb-6">
                 <div className="md:w-1/3">
-                  <label className="block text-gray-500 font-bold md:text-right mb-1 md:mb-0 pr-4" htmlFor="title">
+                  <label
+                    className="block text-gray-500 font-bold md:text-right mb-1 md:mb-0 pr-4"
+                    htmlFor="title"
+                  >
                     제목
                   </label>
                 </div>
@@ -80,7 +90,10 @@ const Modal = (props: { children?: any; open?: any; close?: any; main?: any; fn?
               </div>
               <div className="md:flex md:items-center mb-6">
                 <div className="md:w-1/3">
-                  <label className="block text-gray-500 font-bold md:text-right mb-1 md:mb-0 pr-4" htmlFor="content">
+                  <label
+                    className="block text-gray-500 font-bold md:text-right mb-1 md:mb-0 pr-4"
+                    htmlFor="content"
+                  >
                     내용
                   </label>
                 </div>
