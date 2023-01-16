@@ -1,8 +1,9 @@
 import { AxiosError } from "axios";
 import React, { FormEvent, useCallback, useEffect, useState } from "react";
-import { TODO_URL } from "./data/url";
+import { TODO_URL } from "../../data/url";
 import "./modal.css";
-import axios from "./service/config/axios";
+import axios from "../../service/config/axios";
+import TodoService from "../../service/todoService";
 const Modal = (props: {
   children?: any;
   open?: any;
@@ -21,33 +22,27 @@ const Modal = (props: {
   }, [main]);
 
   const changeTitle = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
+    console.log(e.target.value);
     setTitle(e.target.value);
   }, []);
   const changeContent = useCallback((e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setContent(e.target.value);
   }, []);
 
-  const onSubmit = async (e: FormEvent<HTMLFormElement>) => {
+  const onSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    const data = { title, content };
 
     try {
       const res =
-        type !== "create"
-          ? await axios.put(TODO_URL + `/${props.main.id}`, {
-              title,
-              content,
-            })
-          : await axios.post(TODO_URL, {
-              title,
-              content,
-            });
-      if (res.status === 200) {
+        type !== "create" ? TodoService.putTodo(props.main.id, data) : TodoService.postTodo(data);
+      res.then(() => {
         fn();
         setTitle("");
         setContent("");
         alert(type !== "create" ? "수정하였습니다." : "추가하였습니다.");
         close();
-      }
+      });
     } catch (err) {
       if (err instanceof AxiosError) {
         console.log(err);

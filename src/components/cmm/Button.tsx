@@ -1,4 +1,3 @@
-import { useEffect, useState } from "react";
 import { ButtonProp } from "../../types/cmm";
 
 const BasicButton = (prop: ButtonProp) => {
